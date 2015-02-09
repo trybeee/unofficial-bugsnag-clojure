@@ -8,42 +8,41 @@
 
 (def bugsnag (if bugsnag-enabled (Client. (System/getenv "BUGSNAG_ID"))))
 
+(defmacro with-bugsnag-enabled [& body]
+  `(if bugsnag-enabled
+       (do ~@body)
+       (fn [&])))
+
 (def set-user
-  (if (not bugsnag-enabled)
-    (fn [id email name])
+  (with-bugsnag-enabled
     (fn [id email name]
       (.setUser bugsnag id email name))))
 
 (def set-meta-data
-  (if (not bugsnag-enabled)
-    (fn [metadata])
+  (with-bugsnag-enabled
     (fn [metadata]
       (doseq [[tab data] (stringify-keys metadata)]
         (doseq [[k v] data]
           (.addToTab bugsnag tab k v))))))
 
 (def set-auto-notify
-  (if (not bugsnag-enabled)
-    (fn [enabled])
+  (with-bugsnag-enabled
     (fn [enabled]
-      (.setAutoNotify bugsnag enabled))))
+      (.setAutoNotify bugsnag enabled)))
 
-(def set-notify-release-stages 
-  (if (not bugsnag-enabled)
-    (fn [stages])
+(def set-notify-release-stages
+  (with-bugsnag-enabled
     (fn [stages]
       (.setNotifyReleaseStages bugsnag (into-array stages)))))
 
 (def set-release-stage
-  (if (not bugsnag-enabled)
-    (fn [stage])
+  (with-bugsnag-enabled
     (fn [stage]
       (when bugsnag-enabled
         (.setReleaseStage bugsnag stage)))))
 
 (def notify
-  (if (not bugsnag-enabled)
-    (fn [error details])
+  (with-bugsnag-enabled
     (fn [error details]
       (let [metadata (MetaData.)]
         (doseq [[tab data] details]
@@ -73,7 +72,7 @@
 (defn copy-request [request body]
   (assoc request :body (make-stream body)))
 
-(def wrap-bugsnag 
+(def wrap-bugsnag
   (if (not bugsnag-enabled)
     (fn [handler] (fn [request] (handler request)))
     (fn [handler] (fn [request]
