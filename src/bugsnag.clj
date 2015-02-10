@@ -29,7 +29,7 @@
 (def set-auto-notify
   (with-bugsnag-enabled
     (fn [enabled]
-      (.setAutoNotify bugsnag enabled)))
+      (.setAutoNotify bugsnag enabled))))
 
 (def set-notify-release-stages
   (with-bugsnag-enabled
