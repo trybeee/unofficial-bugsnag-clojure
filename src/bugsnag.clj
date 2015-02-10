@@ -1,14 +1,13 @@
 (ns bugsnag
   (:use [clojure.walk :only (stringify-keys)])
-  (:require [clojure.data.json :as json])
   (:import [com.bugsnag Client MetaData]
            java.io.ByteArrayInputStream))
 
-(def bugsnag-enabled (not= "development" (System/getenv "RELEASE_STAGE")))
+(def bugsnag-enabled (= "production" (System/getenv "RELEASE_STAGE")))
 
 (def bugsnag (if bugsnag-enabled (Client. (System/getenv "BUGSNAG_ID"))))
 
-(defmacro with-bugsnag-enabled 
+(defmacro with-bugsnag-enabled
   [& body]
   `(if bugsnag-enabled
        (do ~@body)
