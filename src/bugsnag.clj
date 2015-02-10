@@ -8,7 +8,8 @@
 
 (def bugsnag (if bugsnag-enabled (Client. (System/getenv "BUGSNAG_ID"))))
 
-(defmacro with-bugsnag-enabled [& body]
+(defmacro with-bugsnag-enabled 
+  [& body]
   `(if bugsnag-enabled
        (do ~@body)
        (fn [&])))
